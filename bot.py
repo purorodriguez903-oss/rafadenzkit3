@@ -220,25 +220,28 @@ class DenzerVoiceBot(discord.Client):
                                 pass
 
                 # Limpiar si hay conexión previa caída
-                if voice_client:
+                if guild.voice_client:
                     try:
-                        await voice_client.disconnect(force=True)
+                        await guild.voice_client.disconnect(force=True)
                     except Exception:
                         pass
                     await asyncio.sleep(0.5)
 
                 logger.info(f"🔄 Conectando a canal '{target_channel.name}' (ID: {self.target_channel_id})...")
                 try:
-                    vc = await target_channel.connect(reconnect=True, timeout=25.0, self_deaf=False)
+                    vc = await target_channel.connect(reconnect=False, timeout=15.0, self_deaf=False)
                     logger.info(f"✅ ¡CONECTADO CON ÉXITO A: '{target_channel.name}'!")
                     self.start_silence_playback(vc)
                 except discord.ClientException as ce:
                     logger.warning(f"Aviso al conectar: {ce}. Reintentando...")
                     if guild.voice_client:
-                        await guild.voice_client.disconnect(force=True)
+                        try:
+                            await guild.voice_client.disconnect(force=True)
+                        except Exception:
+                            pass
                         await asyncio.sleep(1)
-                        vc = await target_channel.connect(reconnect=True, timeout=25.0, self_deaf=False)
-                        self.start_silence_playback(vc)
+                    vc = await target_channel.connect(reconnect=False, timeout=15.0, self_deaf=False)
+                    self.start_silence_playback(vc)
 
             except Exception as e:
                 logger.error(f"❌ Error en conexión de voz: {e}")
@@ -440,21 +443,30 @@ def run_bot():
         logger.error("❌ ERROR: DISCORD_TOKEN no configurado en .env")
         sys.exit(1)
 
-    try:
-        intents_full = discord.Intents.default()
-        intents_full.guilds = True
-        intents_full.voice_states = True
-        intents_full.messages = True
-        intents_full.message_content = True
-        bot = DenzerVoiceBot(intents=intents_full)
-        bot.run(TOKEN)
-    except discord.errors.PrivilegedIntentsRequired:
-        intents_basic = discord.Intents.default()
-        intents_basic.guilds = True
-        intents_basic.voice_states = True
-        intents_basic.messages = True
-        bot = DenzerVoiceBot(intents=intents_basic)
-        bot.run(TOKEN)
+    import time
+    while True:
+        try:
+            intents_full = discord.Intents.default()
+            intents_full.guilds = True
+            intents_full.voice_states = True
+            intents_full.messages = True
+            intents_full.message_content = True
+            bot = DenzerVoiceBot(intents=intents_full)
+            bot.run(TOKEN)
+        except discord.errors.PrivilegedIntentsRequired:
+            try:
+                intents_basic = discord.Intents.default()
+                intents_basic.guilds = True
+                intents_basic.voice_states = True
+                intents_basic.messages = True
+                bot = DenzerVoiceBot(intents=intents_basic)
+                bot.run(TOKEN)
+            except Exception as e2:
+                logger.error(f"Error en bot (basic): {e2}. Reiniciando en 3s...")
+                time.sleep(3)
+        except Exception as e:
+            logger.error(f"Error en bot: {e}. Reiniciando en 3s...")
+            time.sleep(3)
 
 if __name__ == "__main__":
     run_bot()
