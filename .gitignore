@@ -1,0 +1,27 @@
+# Variables de entorno y secretos (NUNCA SUBIR)
+.env
+.env.local
+.env.*.local
+
+# Archivos de audio temporales
+temp_audio/
+*.mp3
+*.wav
+
+# Python cache y bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.venv/
+env/
+venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs del sistema
+*.log

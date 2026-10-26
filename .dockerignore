@@ -1,0 +1,7 @@
+.env
+.git
+temp_audio
+*.bat
+*.vbs
+__pycache__
+*.pyc
