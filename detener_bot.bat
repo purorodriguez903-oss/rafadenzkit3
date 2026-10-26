@@ -8,11 +8,12 @@ echo               DETENIENDO BOT DE DISCORD 24/7
 echo ===================================================================
 echo.
 
-:: Cerrar procesos de python que ejecuten bot.py
-powershell -Command "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*bot.py*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"
+:: Cerrar procesos de python de bot.py
+powershell -Command "Get-CimInstance Win32_Process | Where-Object CommandLine -like '*bot.py*' | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"
+powershell -Command "Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force"
 
 :: Cerrar la ventana del batch si está en loop
-powershell -Command "Get-Process cmd -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Denzer Bot 24/7*' } | Stop-Process -Force"
+powershell -Command "Get-Process cmd -ErrorAction SilentlyContinue | Where-Object MainWindowTitle -like '*Denzer Bot 24/7*' | Stop-Process -Force"
 
 echo.
 echo [OK] El bot y los procesos guardianes se han detenido exitosamente.
