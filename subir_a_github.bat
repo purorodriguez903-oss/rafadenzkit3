@@ -6,7 +6,7 @@ color 0A
 cd /d "%~dp0"
 echo ===================================================================
 echo        SUBIENDO PROYECTO A GITHUB (MODO SEGURO - SIN TOKEN)
-echo        Repo: https://github.com/RafaModzYTPrincipalxd/Denzelxitbot.git
+echo        Repo: https://github.com/purorodriguez903-oss/rafadenzkit3.git
 echo ===================================================================
 echo.
 echo Enviando cambios a GitHub...

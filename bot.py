@@ -208,12 +208,16 @@ class DenzerVoiceBot(discord.Client):
                     else:
                         logger.warning(f"⚠️ Bot fuera de su canal. Moviendo de regreso a '{target_channel.name}'...")
                         try:
-                            await voice_client.move_to(target_channel)
+                            await asyncio.wait_for(voice_client.move_to(target_channel), timeout=3.0)
                             self.start_silence_playback(voice_client)
                             logger.info(f"✅ Bot devuelto a '{target_channel.name}'.")
                             return
                         except Exception as e:
-                            logger.warning(f"Fallo al mover: {e}")
+                            logger.warning(f"Aviso al mover directo ({e}), forzando reconexión rápida...")
+                            try:
+                                await voice_client.disconnect(force=True)
+                            except Exception:
+                                pass
 
                 # Limpiar si hay conexión previa caída
                 if voice_client:
@@ -265,12 +269,12 @@ class DenzerVoiceBot(discord.Client):
             if after.channel is None:
                 logger.warning("🚨 ¡ALERTA! El bot fue desconectado del canal.")
                 logger.info("🛡️ Reconectando inmediatamente...")
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.1)
                 await self.ensure_voice_connection()
             elif after.channel.id != self.target_channel_id:
                 logger.warning(f"🚨 ¡ALERTA! El bot fue movido a '{after.channel.name}'.")
                 logger.info("🛡️ Regresando al canal fijado inmediatamente...")
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.1)
                 await self.ensure_voice_connection()
             return
 
@@ -391,7 +395,7 @@ class DenzerVoiceBot(discord.Client):
             await asyncio.sleep(0.3)
             self.start_silence_playback(voice_client)
 
-    @tasks.loop(seconds=15)
+    @tasks.loop(seconds=5)
     async def voice_watchdog(self):
         """Revisa la conexión periódicamente."""
         try:
